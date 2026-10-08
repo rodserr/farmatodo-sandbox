@@ -54,3 +54,4 @@ env/
 Thumbs.db
 desktop.ini
 *.tmp
+.continue
