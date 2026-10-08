@@ -1,0 +1,1747 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Estudio de Contexto Urbano y Expansión: Farmatodo Venezuela</title>
+  
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <!-- Leaflet MarkerCluster CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css"/>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css"/>
+  <!-- Google Fonts & Font Awesome -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    :root {
+      --ftd-blue: #00509d;
+      --ftd-dark: #071933;
+      --ftd-light-blue: #00a8ff;
+      --ftd-accent: #00d2ff;
+      --bg-dark: #070e1c;
+      --bg-card: #0f1c38;
+      --bg-card-hover: #162652;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --border-color: rgba(255,255,255,0.08);
+      --accent-green: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-red: #ef4444;
+      --accent-purple: #8b5cf6;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    body {
+      background: var(--bg-dark);
+      color: var(--text-main);
+      overflow: hidden;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* HEADER */
+    header {
+      background: linear-gradient(135deg, #071933 0%, #002855 100%);
+      border-bottom: 1px solid rgba(255,255,255,0.12);
+      padding: 0 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
+      z-index: 1000;
+      height: 62px;
+    }
+
+    .logo-area {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-badge {
+      background: #00509d;
+      color: white;
+      font-weight: 800;
+      font-size: 1.05rem;
+      padding: 6px 12px;
+      border-radius: 8px;
+      letter-spacing: 0.5px;
+      box-shadow: 0 4px 12px rgba(0,80,157,0.4);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .header-titles h1 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .header-titles p {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    /* TOP MAIN TABS NAV */
+    .top-nav-tabs {
+      display: flex;
+      gap: 6px;
+      background: rgba(0,0,0,0.35);
+      padding: 4px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .top-nav-btn {
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      background: none;
+      color: var(--text-muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .top-nav-btn:hover {
+      color: #fff;
+      background: rgba(255,255,255,0.08);
+    }
+
+    .top-nav-btn.active {
+      background: #00509d;
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(0,80,157,0.4);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn {
+      padding: 7px 14px;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-primary {
+      background: #00509d;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #0066cc;
+    }
+
+    .btn-outline {
+      background: rgba(255,255,255,0.06);
+      color: var(--text-main);
+      border: 1px solid rgba(255,255,255,0.15);
+    }
+
+    .btn-outline:hover {
+      background: rgba(255,255,255,0.12);
+      color: #fff;
+    }
+
+    /* VIEWS WRAPPER */
+    .views-wrapper {
+      flex: 1;
+      height: calc(100vh - 62px);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* ==========================================================================
+       VIEW 1: DASHBOARD INTERACTIVO (MAP + SIDEBAR)
+       ========================================================================== */
+    #dashboard-view {
+      display: flex;
+      height: 100%;
+      width: 100%;
+      position: relative;
+    }
+
+    #dashboard-view.hidden-view {
+      display: none !important;
+    }
+
+    /* SIDEBAR */
+    #sidebar {
+      width: 440px;
+      background: #091224;
+      border-right: 1px solid rgba(255,255,255,0.08);
+      display: flex;
+      flex-direction: column;
+      z-index: 999;
+      transition: transform 0.3s ease;
+      flex-shrink: 0;
+    }
+
+    #sidebar.collapsed {
+      transform: translateX(-100%);
+      position: absolute;
+      height: 100%;
+    }
+
+    .sidebar-tabs {
+      display: flex;
+      background: #060b17;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 12px 6px;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.2s;
+      border-bottom: 2px solid transparent;
+    }
+
+    .tab-btn.active {
+      color: var(--ftd-accent);
+      border-bottom-color: var(--ftd-accent);
+      background: rgba(0, 210, 255, 0.05);
+    }
+
+    .tab-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* STATS STRIP */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .kpi-card {
+      background: var(--bg-card);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 8px;
+      padding: 12px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .kpi-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 3px;
+      height: 100%;
+    }
+
+    .kpi-card.blue::before { background: var(--ftd-light-blue); }
+    .kpi-card.amber::before { background: var(--accent-amber); }
+    .kpi-card.green::before { background: var(--accent-green); }
+    .kpi-card.purple::before { background: var(--accent-purple); }
+
+    .kpi-title {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    .kpi-value {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #fff;
+      margin: 4px 0 2px 0;
+    }
+
+    .kpi-sub {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+    }
+
+    /* MAP CONTAINER */
+    #map-wrapper {
+      flex: 1;
+      position: relative;
+      height: 100%;
+    }
+
+    #map {
+      width: 100%;
+      height: 100%;
+      background: #0d1b2a;
+    }
+
+    /* MAP FLOATING CONTROLS */
+    .map-floating-panel {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      z-index: 800;
+      background: rgba(9, 18, 36, 0.95);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 10px;
+      padding: 14px 16px;
+      width: 290px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+      transition: all 0.25s ease;
+    }
+
+    .map-floating-panel.panel-hidden {
+      display: none;
+    }
+
+    .layers-toggle-pill {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      z-index: 800;
+      background: #00509d;
+      color: white;
+      border: 1px solid rgba(255,255,255,0.25);
+      padding: 9px 16px;
+      border-radius: 24px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+      transition: all 0.2s ease;
+    }
+
+    .layers-toggle-pill:hover {
+      background: #0066cc;
+      transform: translateY(-1px);
+    }
+
+    .layers-toggle-pill.pill-visible {
+      display: inline-flex;
+    }
+
+    .panel-title {
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: #fff;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .btn-panel-close {
+      background: rgba(255,255,255,0.08);
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 0.8rem;
+      padding: 4px 8px;
+      border-radius: 4px;
+      transition: all 0.2s;
+    }
+
+    .btn-panel-close:hover {
+      color: #fff;
+      background: rgba(255,255,255,0.2);
+    }
+
+    .layer-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 7px 0;
+      font-size: 0.78rem;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+
+    .layer-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      color: #e2e8f0;
+    }
+
+    .layer-color {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+    }
+
+    .custom-switch {
+      position: relative;
+      display: inline-block;
+      width: 32px;
+      height: 18px;
+    }
+
+    .custom-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #334155;
+      transition: .3s;
+      border-radius: 20px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 12px;
+      width: 12px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .3s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background-color: #00509d;
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(14px);
+    }
+
+    /* CITY SEARCH & NAV */
+    .city-nav {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      z-index: 800;
+      display: flex;
+      gap: 8px;
+    }
+
+    .city-select {
+      background: rgba(9, 18, 36, 0.95);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.15);
+      color: #fff;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      outline: none;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+    }
+
+    .city-select option {
+      background: #091224;
+      color: #fff;
+    }
+
+    /* CARDS & RANKING LIST */
+    .cluster-card {
+      background: var(--bg-card);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .cluster-card:hover {
+      background: var(--bg-card-hover);
+      border-color: rgba(0,210,255,0.3);
+      transform: translateY(-2px);
+    }
+
+    .cluster-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 6px;
+    }
+
+    .cluster-name {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .cluster-tier {
+      font-size: 0.65rem;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .tier-intra {
+      background: rgba(0, 168, 255, 0.15);
+      color: #00a8ff;
+      border: 1px solid rgba(0, 168, 255, 0.3);
+    }
+
+    .tier-green {
+      background: rgba(16, 185, 129, 0.15);
+      color: #10b981;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .cluster-metrics {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid rgba(255,255,255,0.05);
+      text-align: center;
+    }
+
+    .cluster-metric-val {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #f1f5f9;
+    }
+
+    .cluster-metric-lbl {
+      font-size: 0.62rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    /* CUSTOM LEAFLET POPUPS */
+    .leaflet-popup-content-wrapper {
+      background: #091224 !important;
+      color: #fff !important;
+      border-radius: 8px !important;
+      border: 1px solid rgba(255,255,255,0.18) !important;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.7) !important;
+    }
+
+    .leaflet-popup-tip {
+      background: #091224 !important;
+    }
+
+    .popup-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 4px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      padding-bottom: 4px;
+    }
+
+    .popup-info {
+      font-size: 0.78rem;
+      color: #cbd5e1;
+      margin: 4px 0;
+      line-height: 1.4;
+    }
+
+    .popup-badge {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      margin-top: 4px;
+    }
+
+    .toggle-sidebar-btn {
+      position: absolute;
+      bottom: 24px;
+      left: 16px;
+      z-index: 800;
+      background: #00509d;
+      color: white;
+      border: none;
+      width: 38px;
+      height: 38px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+    }
+
+    /* ==========================================================================
+       VIEW 2 & 3: CLEAN FULL-PAGE DOCUMENT VIEW (MARKDOWN STYLE)
+       ========================================================================== */
+    .document-page-view {
+      display: none;
+      width: 100%;
+      height: 100%;
+      overflow-y: auto;
+      background: #070e1c;
+      padding: 0;
+    }
+
+    .document-page-view.active-view {
+      display: block !important;
+    }
+
+    .document-container {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 40px 30px 100px 30px;
+      color: #cbd5e1;
+      line-height: 1.75;
+    }
+
+    .doc-card {
+      background: #0f1c38;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 36px 44px;
+      box-shadow: 0 10px 35px rgba(0,0,0,0.4);
+      margin-bottom: 24px;
+    }
+
+    .doc-card h1 {
+      font-size: 1.85rem;
+      font-weight: 800;
+      color: #fff;
+      border-bottom: 2px solid rgba(255,255,255,0.1);
+      padding-bottom: 12px;
+      margin-bottom: 20px;
+    }
+
+    .doc-card h2 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #00d2ff;
+      margin-top: 32px;
+      margin-bottom: 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      padding-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .doc-card h3 {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: #fff;
+      margin-top: 22px;
+      margin-bottom: 10px;
+    }
+
+    .doc-card p {
+      margin-bottom: 14px;
+      font-size: 0.94rem;
+    }
+
+    .doc-card ul, .doc-card ol {
+      margin-left: 24px;
+      margin-bottom: 16px;
+      font-size: 0.94rem;
+    }
+
+    .doc-card li {
+      margin-bottom: 6px;
+    }
+
+    .doc-card strong {
+      color: #fff;
+    }
+
+    .doc-card code {
+      font-family: 'Fira Code', monospace;
+      background: rgba(0,0,0,0.35);
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: #00a8ff;
+      font-size: 0.85em;
+    }
+
+    .doc-card pre {
+      background: #060b17;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      padding: 16px;
+      overflow-x: auto;
+      margin: 16px 0;
+    }
+
+    .doc-card pre code {
+      background: none;
+      padding: 0;
+      color: #e2e8f0;
+      font-size: 0.85rem;
+    }
+
+    .doc-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      font-size: 0.88rem;
+    }
+
+    .doc-table th {
+      background: #071933;
+      color: #fff;
+      font-weight: 700;
+      text-align: left;
+      padding: 12px 14px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .doc-table td {
+      padding: 10px 14px;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .doc-table tr:nth-child(even) {
+      background: rgba(255,255,255,0.02);
+    }
+
+    .alert-box {
+      padding: 16px 20px;
+      border-radius: 8px;
+      margin: 22px 0;
+      font-size: 0.92rem;
+      border-left: 4px solid;
+    }
+
+    .alert-info {
+      background: rgba(0, 168, 255, 0.1);
+      border-left-color: #00a8ff;
+      color: #e0f2fe;
+    }
+
+    .alert-success {
+      background: rgba(16, 185, 129, 0.1);
+      border-left-color: #10b981;
+      color: #d1fae5;
+    }
+
+    .alert-warning {
+      background: rgba(245, 158, 11, 0.1);
+      border-left-color: #f59e0b;
+      color: #fef3c7;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="logo-area">
+      <div class="logo-badge">
+        <i class="fa-solid fa-mortar-pestle"></i> FARMATODO
+      </div>
+      <div class="header-titles">
+        <h1>Análisis de Contexto Urbano y Expansión Comercial</h1>
+        <p>Venezuela: Malla Kontur Population (H3 ~400m) + Cobertura Farmatodo + Censo Competidores</p>
+      </div>
+    </div>
+
+    <!-- TOP-LEVEL DOCUMENT TABS -->
+    <div class="top-nav-tabs">
+      <button class="top-nav-btn active" id="nav-dashboard" onclick="switchMainView('dashboard')">
+        <i class="fa-solid fa-map-location-dot"></i> Dashboard Interactivo
+      </button>
+      <button class="top-nav-btn" id="nav-methodology" onclick="switchMainView('methodology')">
+        <i class="fa-solid fa-book-bookmark"></i> Metodología y Fuentes
+      </button>
+      <button class="top-nav-btn" id="nav-conclusions" onclick="switchMainView('conclusions')">
+        <i class="fa-solid fa-bullseye"></i> Conclusiones y Expansión
+      </button>
+    </div>
+
+    <div class="header-actions">
+      <button class="btn btn-outline" onclick="resetMapView()">
+        <i class="fa-solid fa-compress"></i> Vista Nacional
+      </button>
+    </div>
+  </header>
+
+  <!-- VIEWS WRAPPER -->
+  <div class="views-wrapper">
+    
+    <!-- =====================================================================
+         VIEW 1: DASHBOARD INTERACTIVO (MAPA + PANEL)
+         ===================================================================== -->
+    <div id="dashboard-view">
+      
+      <!-- SIDEBAR -->
+      <div id="sidebar">
+        <div class="sidebar-tabs">
+          <button class="tab-btn active" onclick="switchSidebarTab('tab-kpis')" id="btn-kpis">
+            <i class="fa-solid fa-chart-pie"></i> Panorama
+          </button>
+          <button class="tab-btn" onclick="switchSidebarTab('tab-ranking')" id="btn-ranking">
+            <i class="fa-solid fa-bullseye"></i> Oportunidades
+          </button>
+          <button class="tab-btn" onclick="switchSidebarTab('tab-download')" id="btn-download">
+            <i class="fa-solid fa-file-arrow-down"></i> Descarga Datos
+          </button>
+        </div>
+
+        <!-- TAB 1: PANORAMA & KPIS -->
+        <div id="tab-kpis" class="tab-content active">
+          <div class="kpi-grid">
+            <div class="kpi-card blue">
+              <div class="kpi-title">Farmatodo Activas</div>
+              <div class="kpi-value">207</div>
+              <div class="kpi-sub">56 Ciudades (100% Geolocalizadas)</div>
+            </div>
+            <div class="kpi-card amber">
+              <div class="kpi-title">Competidores Censados</div>
+              <div class="kpi-value">1,699</div>
+              <div class="kpi-sub">Censo Multicanal Integrado</div>
+            </div>
+            <div class="kpi-card green">
+              <div class="kpi-title">Población en Hotspots</div>
+              <div class="kpi-value">3.8M+</div>
+              <div class="kpi-sub">En áreas de déficit &gt; 2km</div>
+            </div>
+            <div class="kpi-card purple">
+              <div class="kpi-title">Hotspots Prioritarios</div>
+              <div class="kpi-value">60</div>
+              <div class="kpi-sub">Intraurbana + Greenfield</div>
+            </div>
+          </div>
+
+          <div style="margin-top: 15px; background: var(--bg-card); padding: 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.06);">
+            <div style="font-size: 0.8rem; font-weight: 700; color: #fff; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between;">
+              <span><i class="fa-solid fa-chart-column"></i> Cuota de Mercado por Cadena</span>
+              <span style="font-size: 0.65rem; color: var(--text-muted);">Total: 1,906 Farmacias</span>
+            </div>
+            <div style="height: 180px; position: relative;">
+              <canvas id="competitorsChart"></canvas>
+            </div>
+          </div>
+
+          <div style="margin-top: 15px; background: var(--bg-card); padding: 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.06);">
+            <div style="font-size: 0.8rem; font-weight: 700; color: #fff; margin-bottom: 10px;">
+              <i class="fa-solid fa-map-location-dot"></i> Tiendas Farmatodo por Ciudad (Top 8)
+            </div>
+            <div id="city-distribution-list"></div>
+          </div>
+        </div>
+
+        <!-- TAB 2: RANKING DE OPORTUNIDADES -->
+        <div id="tab-ranking" class="tab-content">
+          <div style="display: flex; gap: 6px; margin-bottom: 12px;">
+            <button class="btn btn-primary" style="flex: 1; font-size: 0.72rem; padding: 6px;" onclick="filterClusterTier('ALL')" id="filter-all">Todas (60)</button>
+            <button class="btn btn-outline" style="flex: 1; font-size: 0.72rem; padding: 6px;" onclick="filterClusterTier('Densificación Intraurbana')" id="filter-intra">Intraurbana</button>
+            <button class="btn btn-outline" style="flex: 1; font-size: 0.72rem; padding: 6px;" onclick="filterClusterTier('Expansión Greenfield (Nuevas Plazas)')" id="filter-green">Greenfield</button>
+          </div>
+          <div id="clusters-list"></div>
+        </div>
+
+        <!-- TAB 3: DESCARGA DE DATOS -->
+        <div id="tab-download" class="tab-content">
+          <div style="background: var(--bg-card); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 16px; margin-bottom: 16px;">
+            <div style="font-size: 0.92rem; font-weight: 700; color: #fff; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+              <i class="fa-solid fa-file-csv" style="color: #00d2ff; font-size: 1.1rem;"></i>
+              <span>Exportar Zonas de Oportunidad</span>
+            </div>
+            <p style="font-size: 0.78rem; color: #94a3b8; line-height: 1.5; margin-bottom: 16px;">
+              Descarga la base de datos completa con las <strong>60 zonas analizadas</strong> (Densificación Intraurbana y Expansión Greenfield) en formato CSV compatible con Microsoft Excel, Google Sheets y SIG (QGIS/ArcGIS).
+            </p>
+
+            <button class="btn btn-primary" onclick="downloadOpportunityCSV()" style="width: 100%; padding: 12px; font-size: 0.85rem; font-weight: 700; justify-content: center; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,80,157,0.4);">
+              <i class="fa-solid fa-download"></i> Descargar Zonas de Oportunidad (.CSV)
+            </button>
+          </div>
+
+          <div style="background: var(--bg-card); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 14px;">
+            <div style="font-size: 0.8rem; font-weight: 700; color: #fff; margin-bottom: 10px;">
+              <i class="fa-solid fa-table-list" style="color: #10b981; margin-right: 6px;"></i> Campos incluidos en el archivo:
+            </div>
+            <ul style="font-size: 0.74rem; color: #cbd5e1; line-height: 1.8; margin-left: 18px;">
+              <li><code>Prioridad</code>: Ranking de oportunidad (1 a 60).</li>
+              <li><code>ID_Cluster</code>: Identificador único del nodo comercial.</li>
+              <li><code>Zona_Oportunidad</code>: Nombre del sector / municipio y estado.</li>
+              <li><code>Ciudad</code>: Ciudad de referencia.</li>
+              <li><code>Estado</code>: Entidad federal.</li>
+              <li><code>Categoria</code>: Densificación Intraurbana o Expansión Greenfield.</li>
+              <li><code>Poblacion_Radio</code>: Población estimada en área de influencia.</li>
+              <li><code>Distancia_Farmatodo_km</code>: Distancia promedio a tienda existente más cercana.</li>
+              <li><code>Competidores_2km</code>: Cantidad de farmacias competidoras en radio de 2 km.</li>
+              <li><code>Desglose_Competidores</code>: Principales cadenas en la zona.</li>
+              <li><code>Opportunity_Score</code>: Puntuación geomarketing calculada.</li>
+              <li><code>Latitud</code> y <code>Longitud</code>: Coordenadas GPS del centroide.</li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- MAP WRAPPER -->
+      <div id="map-wrapper">
+        
+        <!-- CITY QUICK NAV -->
+        <div class="city-nav">
+          <select class="city-select" id="cityQuickNav" onchange="flyToCity(this.value)">
+            <option value="VZLA">📍 Explorar por Ciudad...</option>
+            <option value="CARACAS">Caracas / Miranda</option>
+            <option value="MARACAIBO">Maracaibo / San Francisco</option>
+            <option value="VALENCIA">Valencia / Carabobo</option>
+            <option value="BARQUISIMETO">Barquisimeto / Cabudare</option>
+            <option value="MARACAY">Maracay / Aragua</option>
+            <option value="PUERTO_ORDAZ">Puerto Ordaz / San Félix</option>
+            <option value="SAN_CRISTOBAL">San Cristóbal / Táchira</option>
+            <option value="EL_TIGRE">El Tigre / Anaco</option>
+            <option value="CUMANA">Cumaná / Carúpano</option>
+            <option value="VALERA">Valera / Trujillo</option>
+            <option value="BARINAS">Barinas</option>
+            <option value="SAN_FELIPE">San Felipe / Yaracuy</option>
+          </select>
+        </div>
+
+        <!-- FLOATING PILL BUTTON (SHOWN WHEN PANEL IS MINIMIZED) -->
+        <div class="layers-toggle-pill" id="layersPill" onclick="toggleLayersPanel()">
+          <i class="fa-solid fa-layer-group" style="color: #00d2ff;"></i>
+          <span>Capas del Análisis</span>
+        </div>
+
+        <!-- FLOATING LAYER CONTROL PANEL -->
+        <div class="map-floating-panel" id="layersPanel">
+          <div class="panel-title">
+            <span><i class="fa-solid fa-layer-group" style="color: #00d2ff; margin-right: 6px;"></i> Capas del Análisis</span>
+            <button class="btn-panel-close" onclick="toggleLayersPanel()" title="Minimizar panel">
+              <i class="fa-solid fa-chevron-right"></i> Ocultar
+            </button>
+          </div>
+
+          <div class="layer-item">
+            <label class="layer-label" for="toggle-ftd">
+              <div class="layer-color" style="background: #00509d; border: 1.5px solid #fff;"></div>
+              <span>Tiendas Farmatodo (207)</span>
+            </label>
+            <label class="custom-switch">
+              <input type="checkbox" id="toggle-ftd" checked onchange="toggleLayer('ftd', this.checked)">
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          <div class="layer-item">
+            <label class="layer-label" for="toggle-buffer">
+              <div class="layer-color" style="background: rgba(0,80,157,0.2); border: 1px dashed #00a8ff;"></div>
+              <span>Radio Cobertura (2 km)</span>
+            </label>
+            <label class="custom-switch">
+              <input type="checkbox" id="toggle-buffer" checked onchange="toggleLayer('buffer', this.checked)">
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          <div class="layer-item">
+            <label class="layer-label" for="toggle-comps">
+              <div class="layer-color" style="background: #f59e0b;"></div>
+              <span>Competidores (1,699)</span>
+            </label>
+            <label class="custom-switch">
+              <input type="checkbox" id="toggle-comps" checked onchange="toggleLayer('comps', this.checked)">
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          <div class="layer-item">
+            <label class="layer-label" for="toggle-hotspots">
+              <div class="layer-color" style="background: #10b981; border: 2px solid #00d2ff;"></div>
+              <span>Hotspots Oportunidad (60)</span>
+            </label>
+            <label class="custom-switch">
+              <input type="checkbox" id="toggle-hotspots" checked onchange="toggleLayer('hotspots', this.checked)">
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          <!-- KONTUR SIEMPRE AL FINAL DE LAS CAPAS -->
+          <div class="layer-item">
+            <label class="layer-label" for="toggle-kontur">
+              <div class="layer-color" style="background: linear-gradient(90deg, #f59e0b, #ef4444);"></div>
+              <span>Población Kontur (H3 400m)</span>
+            </label>
+            <label class="custom-switch">
+              <input type="checkbox" id="toggle-kontur" checked onchange="toggleLayer('kontur', this.checked)">
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          <div style="margin-top: 10px; font-size: 0.68rem; color: var(--text-muted); border-top: 1px solid rgba(255,255,255,0.06); padding-top: 8px;">
+            <i class="fa-solid fa-circle-check" style="color: #10b981;"></i> Capa base: Esri World Street Map (Libre, sin 403 ni API key).
+          </div>
+        </div>
+
+        <!-- MAP CONTAINER -->
+        <div id="map"></div>
+
+        <!-- SIDEBAR TOGGLE -->
+        <button class="toggle-sidebar-btn" onclick="toggleSidebar()" title="Mostrar/Ocultar Panel Lateral">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+
+      </div>
+    </div>
+
+    <!-- =====================================================================
+         VIEW 2: METODOLOGÍA Y FUENTES DE DATOS (DOCUMENTO ESTILO MARKDOWN)
+         ===================================================================== -->
+    <div id="methodology-view" class="document-page-view">
+      <div class="document-container">
+        
+        <div class="doc-card">
+          <h1>Metodología de Análisis Espacial y Fuentes de Datos</h1>
+          <p><strong>Proyecto:</strong> Estudio de Geomarketing para Detección de Brechas y Oportunidades Comerciales de Farmatodo en Venezuela.</p>
+          
+          <div class="alert-box alert-info">
+            <strong>Objetivo:</strong> Identificar áreas urbanas en el territorio venezolano que conjuguen <strong>alta densidad poblacional</strong>, <strong>ausencia de canibalización</strong> con la red actual de Farmatodo (distancia &gt; 2.0 km) y <strong>vacío o vulnerabilidad de competidores</strong> directos.
+          </div>
+
+          <h2>1. Fuentes de Datos</h2>
+          
+          <h3>A. Censo Nacional de Farmacias Competidoras</h3>
+          <p>Se consolidó una base de datos territorial comprensiva con <strong>1,699 establecimientos farmacéuticos</strong> a nivel nacional, categorizados según su formato comercial: cadenas nacionales y regionales (Locatel, Farmahorro, Farmacia SAAS, Farmarket, Farmabien, Redvital), farmacias comunitarias y boticas independientes. Cada punto cuenta con su geolocalización precisa y radio de influencia para evaluar el entorno competitivo directo de cada sector.</p>
+
+          <h3>B. Malla de Densidad Poblacional (Kontur Population H3)</h3>
+          <p>Se utilizó el modelo de distribución poblacional de alta resolución estructurado en una <strong>malla hexagonal Uber H3 a resolución 8</strong> (longitud de arista de ~460 metros, área de ~0.73 km² por celda). El modelo fue filtrado para aislar <strong>14,999 celdas urbanas consolidadas</strong> con densidad residencial activa (&ge; 250 habitantes por celda), descartando zonas rurales o deshabitadas para concentrar el análisis en zonas con demanda comercial real.</p>
+
+          <h2>2. Formulación Matemática del Modelo de Oportunidad</h2>
+          <p>Para cada celda hexagonal i con población P_i y coordenadas de centroide (lat_i, lng_i):</p>
+
+          <h3>A. Medición de Distancia Geodésica (Haversine)</h3>
+          <p>Se calcula la distancia esférica mínima a la red existente de Farmatodo (d_FTD) y la cantidad de farmacias competidoras dentro de un radio de servicio de 2.0 km (C_2km):</p>
+          <pre><code>d(lat1, lon1, lat2, lon2) = 2 · R · arcsin( √( sin²(Δlat/2) + cos(lat1)·cos(lat2)·sin²(Δlon/2) ) )</code></pre>
+
+          <h3>B. Algoritmo del Índice de Oportunidad (Opportunity Score)</h3>
+          <p>El índice pondera de forma combinada la concentración poblacional, la distancia a la tienda más cercana (evitando canibalización) y la saturación competitiva:</p>
+          <pre><code>Score = ( Población_i · f(d_FTD) ) / ( 1 + 0.20 · Competidores_2km )</code></pre>
+
+          <p>Donde la función de amortiguación de distancia f(d_FTD) responde a:</p>
+          <table class="doc-table">
+            <thead>
+              <tr>
+                <th>Rango de Distancia a Farmatodo</th>
+                <th>Factor f(d)</th>
+                <th>Interpretación Geomarketing</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>&lt; 1.5 km</code></td>
+                <td><code>0.10</code></td>
+                <td><strong>Zona de Alta Canibalización:</strong> Área cubierta por tienda existente.</td>
+              </tr>
+              <tr>
+                <td><code>1.5 km a 2.5 km</code></td>
+                <td><code>0.60</code></td>
+                <td><strong>Franja de Transición:</strong> Cobertura parcial secundaria.</td>
+              </tr>
+              <tr>
+                <td><code>&gt; 2.5 km</code></td>
+                <td><code>min(d / 2.5, 3.5)</code></td>
+                <td><strong>Zona de Oportunidad Plena:</strong> Demanda cautiva desatendida por Farmatodo.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h2>3. Definición y Taxonomía de Categorías</h2>
+          <p>Para alinear el análisis con los procesos reales de inversión y expansión retail, los hotspots se clasificaron en dos grupos estratégicos:</p>
+          
+          <table class="doc-table">
+            <thead>
+              <tr>
+                <th>Categoría Estratégica</th>
+                <th>Criterio Espacial</th>
+                <th>Mundo de Negocio / Objetivo</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong style="color:#00a8ff;">Densificación Intraurbana y Cobertura de Vacíos</strong></td>
+                <td>2.0 km &le; d_FTD &le; 18.0 km dentro de grandes áreas metropolitanas</td>
+                <td>Capturar densidades urbanas en municipios satélite o parroquias periféricas donde Farmatodo tiene <em>brand awareness</em> consolidado pero las tiendas existentes quedan lejos.</td>
+              </tr>
+              <tr>
+                <td><strong style="color:#10b981;">Expansión Greenfield (Nuevas Plazas)</strong></td>
+                <td>d_FTD &gt; 18.0 km en centros urbanos autónomos</td>
+                <td>Apertura de nuevas cabeceras de mercado en ciudades intermedias no cubiertas con masa crítica &gt;25.000 a 100.000 habitantes.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- =====================================================================
+         VIEW 3: CONCLUSIONES Y PLAN DE EXPANSIÓN (DOCUMENTO ESTILO MARKDOWN)
+         ===================================================================== -->
+    <div id="conclusions-view" class="document-page-view">
+      <div class="document-container">
+        
+        <div class="doc-card">
+          <h1>Conclusiones Estratégicas y Plan de Expansión</h1>
+          <p><strong>Diagnóstico Territorial de Brechas Comerciales para Farmatodo en Venezuela.</strong></p>
+
+          <div class="alert-box alert-success">
+            <strong>Conclusión General:</strong> El modelo identifica una masa poblacional desatendida superior a <strong>3.8 millones de habitantes</strong> en 60 clusters prioritarios que no cuentan con un Farmatodo a menos de 2 km, dominados por farmacias tradicionales de mostrador con surtido fragmentado.
+          </div>
+
+          <h2>1. Diagnóstico de la Red Actual: Concentración vs. Vacíos</h2>
+          <ul>
+            <li><strong>Hiperconcentración en la Gran Caracas:</strong> 71 de las 207 tiendas (34.3% de la red nacional) se ubican en el Área Metropolitana de Caracas. En municipios como Chacao y Baruta, la distancia intertienda es en muchos casos menor a 1.2 km, alcanzando un punto de saturación y rendimiento decreciente por canibalización.</li>
+            <li><strong>Asimetría Este-Oeste:</strong> En las principales metrópolis (Caracas, Maracaibo, Valencia, Barquisimeto), las tiendas se han expandido preferentemente en los cuadrantes este y norte de mayor ingreso relativo, dejando los cuadrantes oeste y sur —donde reside el 60-70% del volumen poblacional y de tráfico— en manos de farmacias independientes.</li>
+          </ul>
+
+          <h2>2. Priorización: Top Zonas de Densificación Intraurbana</h2>
+          <p>Las siguientes zonas presentan el mayor retorno de inversión esperado por contar con masa crítica consolidada y proximidad a la infraestructura logística existente:</p>
+
+          <table class="doc-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Zona / Eje Metropolitano</th>
+                <th>Población en Radio</th>
+                <th>Dist. FTD Actual</th>
+                <th>Competidores (2km)</th>
+                <th>Diagnóstico Estratégico</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>1</strong></td>
+                <td><strong>San Félix (Ciudad Guayana, Bolívar)</strong></td>
+                <td>127,096 hab.</td>
+                <td>10.5 km</td>
+                <td>0 censadas (solo boticas)</td>
+                <td><strong>Oportunidad #1 de Venezuela.</strong> Las 6 tiendas de Ciudad Guayana están en Puerto Ordaz. Cruzar el río Caroní hacia San Félix desbloquea un mercado cautivo de más de 120k habitantes.</td>
+              </tr>
+              <tr>
+                <td><strong>2</strong></td>
+                <td><strong>Valles del Tuy (Charallave / Santa Teresa / Cúa)</strong></td>
+                <td>262,842 hab.</td>
+                <td>13.5 a 15.3 km</td>
+                <td>1 independiente</td>
+                <td>Eje dormitorio masivo del Distrito Capital. El flujo constante de usuarios hacia estaciones del ferrocarril representa un punto idóneo para formatos de alto tráfico.</td>
+              </tr>
+              <tr>
+                <td><strong>3</strong></td>
+                <td><strong>Valencia Sur (Flor Amarillo / Los Guayos / Tocuyito)</strong></td>
+                <td>116,502 hab.</td>
+                <td>7.8 km</td>
+                <td>Baja presencia formal</td>
+                <td>Zona industrial y residencial densa desprovista del concepto de autoservicio 24 horas.</td>
+              </tr>
+              <tr>
+                <td><strong>4</strong></td>
+                <td><strong>Maracaibo Oeste (Curva de Molina / La Limpia Oeste)</strong></td>
+                <td>180,912 hab.</td>
+                <td>4.6 km</td>
+                <td>Alta presencia informal</td>
+                <td>El centro de gravedad comercial del oeste de Maracaibo. Un Farmatodo con estacionamiento capturaría el gasto cotidiano de múltiples parroquias.</td>
+              </tr>
+              <tr>
+                <td><strong>5</strong></td>
+                <td><strong>Caracas Oeste y Periferia (Catia-Propatria, Caricuao, El Junquito)</strong></td>
+                <td>&gt;200,000 hab.</td>
+                <td>3.0 a 6.5 km</td>
+                <td>Alta presencia independiente</td>
+                <td>Densidades superiores a 15,000 hab/km² donde el formato strip-mall o local a pie de calle generaría alta rotación de compras recurrentes.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h2>3. Priorización: Top Plazas Greenfield (Nuevas Ciudades)</h2>
+          <p>Centros urbanos consolidados donde Farmatodo no posee ninguna tienda y la competencia moderna es prácticamente inexistente:</p>
+
+          <table class="doc-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Ciudad / Plaza</th>
+                <th>Estado</th>
+                <th>Población Urbana</th>
+                <th>Distancia a FTD más cercana</th>
+                <th>Potencial Comercial</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>1</strong></td>
+                <td><strong>Carora &amp; El Tocuyo</strong></td>
+                <td>Lara</td>
+                <td>175,872 hab.</td>
+                <td>54.0 km (desde Barquisimeto)</td>
+                <td>Eje agroindustrial y vitivinícola con alto poder de compra local y sin competencia de cadenas nacionales.</td>
+              </tr>
+              <tr>
+                <td><strong>2</strong></td>
+                <td><strong>Valle de la Pascua &amp; Calabozo</strong></td>
+                <td>Guárico</td>
+                <td>142,500 hab.</td>
+                <td>77.1 km</td>
+                <td>Centro neurálgico del comercio agropecuario llanero. Alta demanda de productos de salud, misceláneos e insumos personales 24 horas.</td>
+              </tr>
+              <tr>
+                <td><strong>3</strong></td>
+                <td><strong>Machiques &amp; Cabimas Sur</strong></td>
+                <td>Zulia</td>
+                <td>150,515 hab.</td>
+                <td>79.3 km a 115 km</td>
+                <td>Poblaciones ganaderas y petroleras con excelente vialidad troncal y demanda desabastecida.</td>
+              </tr>
+              <tr>
+                <td><strong>4</strong></td>
+                <td><strong>Tucupita &amp; Upata</strong></td>
+                <td>Delta Amacuro / Bolívar</td>
+                <td>182,700 hab.</td>
+                <td>112.9 km a 168 km</td>
+                <td>Plazas cautivas donde la entrada de un competidor formal de autoservicio monopolizaría la categoría de cuidado personal y farmacia.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h2>4. Recomendaciones de Formato y Tipología de Tienda</h2>
+          
+          <h3>Formato Free-Standing con Auto-Farmatodo (Drive-Thru)</h3>
+          <p><strong>Zonas destino:</strong> Ciudades Greenfield (Carora, Valle de la Pascua, San Félix) y ejes viales de Valencia Sur (Flor Amarillo) y Cabudare Sur.</p>
+          <ul>
+            <li>Superficie: 800 – 1,200 m².</li>
+            <li>Estacionamiento propio: mínimo 25 vehículos.</li>
+            <li>Ventanilla Auto-Farmatodo para servicio 24 horas sin necesidad de acceso peatonal al salón en horario nocturno.</li>
+          </ul>
+
+          <h3>Formato Compacto / Strip-Mall / Local Urbano</h3>
+          <p><strong>Zonas destino:</strong> Catia (Propatria), Curva de Molina (Maracaibo), Charallave Centro, Caricuao.</p>
+          <ul>
+            <li>Superficie: 350 – 500 m².</li>
+            <li>Enfoque en alta densidad de paso peatonal, optimización de stock de alta rotación (medicamentos esenciales, cuidado infantil, higiene diaria).</li>
+            <li>Menor requerimiento de cajones de estacionamiento.</li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- EMBEDDED DASHBOARD DATA -->
+  <script>
+    const DATA = __DASHBOARD_DATA__;
+  </script>
+
+  <!-- Leaflet JS & MarkerCluster JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+
+  <script>
+    // INITIALIZE MAP WITH ESRI WORLD STREET MAP
+    const map = L.map('map', {
+      center: [8.5, -66.5],
+      zoom: 6.4,
+      zoomControl: false,
+      preferCanvas: true
+    });
+
+    L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+    // CREATE CUSTOM PANES TO ENSURE KONTUR IS ALWAYS AT THE VERY BOTTOM OF ALL LAYERS
+    map.createPane('konturPane');
+    map.getPane('konturPane').style.zIndex = 350; // Below overlayPane (400)
+    map.createPane('bufferPane');
+    map.getPane('bufferPane').style.zIndex = 380; // Below markers (400+)
+
+    // BASEMAP
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+      maxZoom: 19,
+      attribution: 'Tiles &copy; Esri'
+    }).addTo(map);
+
+    // LAYER GROUPS
+    const ftdLayer = L.layerGroup();
+    const bufferLayer = L.layerGroup();
+    const compsCluster = L.markerClusterGroup({
+      maxClusterRadius: 40,
+      spiderfyOnMaxZoom: true,
+      showCoverageOnHover: false
+    });
+    const hotspotsLayer = L.layerGroup();
+    const konturLayer = L.layerGroup();
+
+    // COLOR SCALES FOR KONTUR
+    function getKonturColor(pop) {
+      return pop > 10000 ? '#7f1d1d' :
+             pop > 5000  ? '#dc2626' :
+             pop > 2500  ? '#ea580c' :
+             pop > 1000  ? '#f59e0b' :
+             pop > 500   ? '#eab308' :
+                           '#84cc16';
+    }
+
+    console.log("Loading Map Layers with Data...");
+
+    // 1. Kontur Hexagons (Added first and strictly assigned to konturPane)
+    DATA.hexagons.forEach(h => {
+      const pop = h[0];
+      const dist = h[1];
+      const comp = h[2];
+      const score = h[3];
+      const cat = h[4];
+      const city = h[5];
+      const coords = h[6];
+
+      const poly = L.polygon(coords, {
+        pane: 'konturPane',
+        fillColor: getKonturColor(pop),
+        color: 'rgba(0,0,0,0.12)',
+        weight: 0.5,
+        fillOpacity: 0.52
+      });
+
+      poly.bindPopup(`
+        <div class="popup-title">👥 Hexágono Kontur (400m)</div>
+        <div class="popup-info"><strong>Población Estimada:</strong> ${pop.toLocaleString()} hab.</div>
+        <div class="popup-info"><strong>Dist. Farmatodo más cercana:</strong> ${dist} km (${city})</div>
+        <div class="popup-info"><strong>Farmacias a &lt; 2km:</strong> ${comp}</div>
+        <div class="popup-info"><strong>Índice Oportunidad:</strong> <strong style="color:#00d2ff;">${score.toLocaleString()} pts</strong></div>
+        <span class="popup-badge" style="background:#1e293b; color:#f1f5f9;">${cat}</span>
+      `);
+
+      konturLayer.addLayer(poly);
+    });
+
+    // 2. 2km Coverage Buffers (bufferPane)
+    DATA.stores.forEach(s => {
+      const buffer = L.circle([s.lat, s.lng], {
+        pane: 'bufferPane',
+        radius: 2000,
+        color: '#00a8ff',
+        weight: 1,
+        dashArray: '4, 4',
+        fillColor: '#00509d',
+        fillOpacity: 0.08,
+        interactive: false
+      });
+      bufferLayer.addLayer(buffer);
+    });
+
+    // 3. Farmatodo Stores
+    DATA.stores.forEach(s => {
+      const ftdMarker = L.circleMarker([s.lat, s.lng], {
+        radius: 7,
+        fillColor: '#00509d',
+        color: '#ffffff',
+        weight: 2,
+        opacity: 1,
+        fillOpacity: 0.95
+      });
+
+      ftdMarker.bindPopup(`
+        <div class="popup-title">🏪 FARMATODO ${s.n}</div>
+        <div class="popup-info"><strong>Dirección:</strong> ${s.a}</div>
+        <div class="popup-info"><strong>Ciudad:</strong> ${s.c} (${s.m})</div>
+        <div class="popup-info"><strong>Horario:</strong> ${s.h || '24 Horas'}</div>
+        <div class="popup-info"><strong>Teléfono:</strong> ${s.p}</div>
+        <span class="popup-badge" style="background:#00509d; color:#fff;">Modo: ${s.d}</span>
+      `);
+      ftdLayer.addLayer(ftdMarker);
+    });
+
+    // 4. Competitors (Clustered)
+    DATA.competitors.forEach(c => {
+      let color = '#94a3b8';
+      if (c.ch === 'Locatel') color = '#ef4444';
+      else if (c.ch === 'Farmahorro') color = '#3b82f6';
+      else if (c.ch.includes('SAAS')) color = '#f59e0b';
+      else if (c.ch === 'Farmarket') color = '#10b981';
+      else if (c.ch === 'Redvital') color = '#8b5cf6';
+      else if (c.ch === 'Farmabien') color = '#ec4899';
+
+      const compMarker = L.circleMarker([c.lat, c.lng], {
+        radius: 5,
+        fillColor: color,
+        color: '#ffffff',
+        weight: 1,
+        fillOpacity: 0.85
+      });
+
+      let ratingHtml = c.r ? `<div class="popup-info">⭐ Rating: <strong>${c.r}</strong> (${c.rc || 0} reseñas)</div>` : '';
+
+      compMarker.bindPopup(`
+        <div class="popup-title">💊 ${c.n}</div>
+        <div class="popup-info"><strong>Cadena:</strong> ${c.ch}</div>
+        ${c.a ? `<div class="popup-info"><strong>Dirección:</strong> ${c.a}</div>` : ''}
+        ${ratingHtml}
+        <div class="popup-info" style="font-size:0.68rem; color:#94a3b8;">Fuente: ${c.s}</div>
+      `);
+      compsCluster.addLayer(compMarker);
+    });
+
+    // 5. Opportunity Hotspots (Above everything)
+    DATA.clusters.forEach((cl, idx) => {
+      const isIntra = cl.cat === 'Densificación Intraurbana';
+      const color = isIntra ? '#00d2ff' : '#10b981';
+
+      const hotspotMarker = L.circleMarker([cl.lat, cl.lng], {
+        radius: 12,
+        fillColor: color,
+        color: '#ffffff',
+        weight: 2,
+        fillOpacity: 0.85
+      });
+
+      hotspotMarker.bindPopup(`
+        <div class="popup-title">🎯 #${idx+1} ${cl.zl}</div>
+        <div class="popup-info"><strong>Categoría:</strong> <span class="popup-badge ${isIntra ? 'tier-intra' : 'tier-green'}">${cl.cat}</span></div>
+        <div class="popup-info"><strong>Población en Radio:</strong> <strong>${cl.pop.toLocaleString()} habitantes</strong></div>
+        <div class="popup-info"><strong>Distancia a Farmatodo:</strong> ${cl.dist} km</div>
+        <div class="popup-info"><strong>Competidores a 2km:</strong> ${cl.comp} (${cl.cbd})</div>
+        <div class="popup-info"><strong>Opportunity Score:</strong> <span style="font-size:1rem; font-weight:800; color:${color};">${cl.score.toLocaleString()}</span></div>
+      `);
+
+      hotspotsLayer.addLayer(hotspotMarker);
+    });
+
+    // ADD LAYERS TO MAP IN STRICT Z-ORDER
+    konturLayer.addTo(map);
+    bufferLayer.addTo(map);
+    compsCluster.addTo(map);
+    ftdLayer.addTo(map);
+    hotspotsLayer.addTo(map);
+
+    // LAYER TOGGLES
+    function toggleLayer(layerKey, isChecked) {
+      if (layerKey === 'ftd') isChecked ? map.addLayer(ftdLayer) : map.removeLayer(ftdLayer);
+      if (layerKey === 'buffer') isChecked ? map.addLayer(bufferLayer) : map.removeLayer(bufferLayer);
+      if (layerKey === 'comps') isChecked ? map.addLayer(compsCluster) : map.removeLayer(compsCluster);
+      if (layerKey === 'kontur') isChecked ? map.addLayer(konturLayer) : map.removeLayer(konturLayer);
+      if (layerKey === 'hotspots') isChecked ? map.addLayer(hotspotsLayer) : map.removeLayer(hotspotsLayer);
+    }
+
+    // SHOW / HIDE FOR FLOATING LAYERS PANEL
+    function toggleLayersPanel() {
+      const panel = document.getElementById('layersPanel');
+      const pill = document.getElementById('layersPill');
+      
+      if (panel.classList.contains('panel-hidden')) {
+        panel.classList.remove('panel-hidden');
+        pill.classList.remove('pill-visible');
+      } else {
+        panel.classList.add('panel-hidden');
+        pill.classList.add('pill-visible');
+      }
+    }
+
+    // TOP-LEVEL MAIN VIEW SWITCHER (Dashboard vs Methodology vs Conclusions)
+    function switchMainView(viewKey) {
+      const dashboard = document.getElementById('dashboard-view');
+      const methodology = document.getElementById('methodology-view');
+      const conclusions = document.getElementById('conclusions-view');
+
+      const navDash = document.getElementById('nav-dashboard');
+      const navMeth = document.getElementById('nav-methodology');
+      const navConc = document.getElementById('nav-conclusions');
+
+      navDash.classList.remove('active');
+      navMeth.classList.remove('active');
+      navConc.classList.remove('active');
+
+      if (viewKey === 'dashboard') {
+        dashboard.classList.remove('hidden-view');
+        methodology.classList.remove('active-view');
+        conclusions.classList.remove('active-view');
+        navDash.classList.add('active');
+        setTimeout(() => map.invalidateSize(), 150);
+      } else if (viewKey === 'methodology') {
+        dashboard.classList.add('hidden-view');
+        methodology.classList.add('active-view');
+        conclusions.classList.remove('active-view');
+        navMeth.classList.add('active');
+        methodology.scrollTop = 0;
+      } else if (viewKey === 'conclusions') {
+        dashboard.classList.add('hidden-view');
+        methodology.classList.remove('active-view');
+        conclusions.classList.add('active-view');
+        navConc.classList.add('active');
+        conclusions.scrollTop = 0;
+      }
+    }
+
+    // SIDEBAR TABS (Panorama vs Ranking vs Descarga)
+    function switchSidebarTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+
+      document.getElementById(tabId).classList.add('active');
+      if (tabId === 'tab-kpis') document.getElementById('btn-kpis').classList.add('active');
+      if (tabId === 'tab-ranking') document.getElementById('btn-ranking').classList.add('active');
+      if (tabId === 'tab-download') document.getElementById('btn-download').classList.add('active');
+    }
+
+    // POPULATE RANKING LIST IN SIDEBAR
+    let currentTierFilter = 'ALL';
+    function renderClustersList() {
+      const container = document.getElementById('clusters-list');
+      container.innerHTML = '';
+
+      const filtered = DATA.clusters.filter(c => {
+        if (currentTierFilter === 'ALL') return true;
+        return c.cat === currentTierFilter;
+      });
+
+      filtered.forEach((c, idx) => {
+        const isIntra = c.cat === 'Densificación Intraurbana';
+        const card = document.createElement('div');
+        card.className = 'cluster-card';
+        card.onclick = () => {
+          map.flyTo([c.lat, c.lng], 13.5, { duration: 1.2 });
+        };
+
+        card.innerHTML = `
+          <div class="cluster-card-header">
+            <div>
+              <div style="font-size:0.65rem; color:var(--ftd-accent); font-weight:700;">#${idx+1} PRIORIDAD</div>
+              <div class="cluster-name">${c.zl}</div>
+            </div>
+            <span class="cluster-tier ${isIntra ? 'tier-intra' : 'tier-green'}">${isIntra ? 'Intraurbana' : 'Greenfield'}</span>
+          </div>
+          <div class="cluster-metrics">
+            <div>
+              <div class="cluster-metric-val">${c.pop.toLocaleString()}</div>
+              <div class="cluster-metric-lbl">Habitantes</div>
+            </div>
+            <div>
+              <div class="cluster-metric-val">${c.dist} km</div>
+              <div class="cluster-metric-lbl">Dist. FTD</div>
+            </div>
+            <div>
+              <div class="cluster-metric-val">${c.comp}</div>
+              <div class="cluster-metric-lbl">Comps (2km)</div>
+            </div>
+          </div>
+          <div style="margin-top:6px; font-size:0.68rem; color:var(--text-muted); display:flex; justify-content:space-between; align-items:center;">
+            <span>Score: <strong style="color:#00d2ff;">${c.score.toLocaleString()}</strong></span>
+            <span style="font-size:0.65rem; color:#94a3b8;"><i class="fa-solid fa-location-crosshairs"></i> Ir al mapa</span>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function filterClusterTier(tier) {
+      currentTierFilter = tier;
+      document.getElementById('filter-all').className = tier === 'ALL' ? 'btn btn-primary' : 'btn btn-outline';
+      document.getElementById('filter-intra').className = tier === 'Densificación Intraurbana' ? 'btn btn-primary' : 'btn btn-outline';
+      document.getElementById('filter-green').className = tier === 'Expansión Greenfield (Nuevas Plazas)' ? 'btn btn-primary' : 'btn btn-outline';
+      renderClustersList();
+    }
+
+    // CSV DOWNLOAD FUNCTION
+    function downloadOpportunityCSV() {
+      const headers = [
+        "Prioridad",
+        "ID_Cluster",
+        "Zona_Oportunidad",
+        "Ciudad",
+        "Estado",
+        "Categoria",
+        "Poblacion_Radio",
+        "Distancia_Farmatodo_km",
+        "Competidores_2km",
+        "Desglose_Competidores",
+        "Opportunity_Score",
+        "Latitud",
+        "Longitud"
+      ];
+
+      let csvRows = [];
+      csvRows.push(headers.join(";"));
+
+      DATA.clusters.forEach((c, idx) => {
+        const row = [
+          idx + 1,
+          c.id,
+          `"${(c.zl || '').replace(/"/g, '""')}"`,
+          `"${(c.city || '').replace(/"/g, '""')}"`,
+          `"${(c.state || '').replace(/"/g, '""')}"`,
+          `"${(c.cat || '').replace(/"/g, '""')}"`,
+          c.pop,
+          c.dist,
+          c.comp,
+          `"${(c.cbd || '').replace(/"/g, '""')}"`,
+          c.score,
+          c.lat,
+          c.lng
+        ];
+        csvRows.push(row.join(";"));
+      });
+
+      // UTF-8 BOM (\uFEFF) ensures Excel opens special characters and accents perfectly
+      const csvString = "\uFEFF" + csvRows.join("\r\n");
+      const blob = new Blob([csvString], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", "zonas_oportunidad_farmatodo_venezuela.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }
+
+    // CITY DISTRIBUTION
+    function renderCityDistribution() {
+      const container = document.getElementById('city-distribution-list');
+      container.innerHTML = '';
+      DATA.stats.top_stores_cities.slice(0, 8).forEach(item => {
+        const city = item[0];
+        const count = item[1];
+        const pct = Math.round((count / DATA.stats.total_stores) * 100);
+        const row = document.createElement('div');
+        row.style.marginBottom = '8px';
+        row.innerHTML = `
+          <div style="display:flex; justify-content:space-between; font-size:0.75rem; margin-bottom:3px;">
+            <span style="color:#fff; font-weight:600;">${city}</span>
+            <span style="color:var(--text-muted);">${count} tiendas (${pct}%)</span>
+          </div>
+          <div style="background:rgba(255,255,255,0.06); height:6px; border-radius:3px; overflow:hidden;">
+            <div style="background:#00509d; height:100%; width:${pct*2.5}%;"></div>
+          </div>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    // CHART.JS
+    function initCompetitorsChart() {
+      const ctx = document.getElementById('competitorsChart').getContext('2d');
+      const compData = DATA.stats.competitors_by_chain.slice(0, 6);
+      
+      const labels = ['Farmatodo (Oficial)', ...compData.map(c => c[0])];
+      const values = [DATA.stats.total_stores, ...compData.map(c => c[1])];
+
+      new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: labels,
+          datasets: [{
+            data: values,
+            backgroundColor: [
+              '#00509d', // Farmatodo
+              '#64748b', // Independiente
+              '#f59e0b', // SAAS
+              '#3b82f6', // Farmahorro
+              '#ef4444', // Locatel
+              '#ec4899', // Farmabien
+              '#10b981'  // Farmarket
+            ],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'right',
+              labels: {
+                color: '#94a3b8',
+                font: { size: 10, family: 'Inter' },
+                boxWidth: 10,
+                padding: 6
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // QUICK CITY NAV
+    function flyToCity(cityCode) {
+      const coords = {
+        'VZLA': [8.5, -66.5, 6.4],
+        'CARACAS': [10.4900, -66.8600, 12],
+        'MARACAIBO': [10.6400, -71.6400, 12],
+        'VALENCIA': [10.1900, -67.9800, 12],
+        'BARQUISIMETO': [10.0700, -69.3200, 12],
+        'MARACAY': [10.2400, -67.5800, 12],
+        'PUERTO_ORDAZ': [8.3000, -62.7000, 12],
+        'SAN_CRISTOBAL': [7.7700, -72.2200, 12.5],
+        'EL_TIGRE': [8.8800, -64.2400, 12.5],
+        'CUMANA': [10.4500, -64.1700, 13],
+        'VALERA': [9.3200, -70.6000, 13],
+        'BARINAS': [8.6200, -70.2100, 13],
+        'SAN_FELIPE': [10.3400, -68.7400, 13]
+      };
+
+      if (coords[cityCode]) {
+        const c = coords[cityCode];
+        map.flyTo([c[0], c[1]], c[2], { duration: 1.5 });
+      }
+    }
+
+    function resetMapView() {
+      flyToCity('VZLA');
+    }
+
+    function toggleSidebar() {
+      const sb = document.getElementById('sidebar');
+      sb.classList.toggle('collapsed');
+      setTimeout(() => map.invalidateSize(), 300);
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      renderClustersList();
+      renderCityDistribution();
+      initCompetitorsChart();
+      filterClusterTier('ALL');
+    });
+  </script>
+</body>
+</html>

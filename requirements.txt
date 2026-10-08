@@ -1,0 +1,10 @@
+# Dependencias del Pipeline Farmatodo
+python-dotenv>=1.0.0
+requests>=2.31.0
+
+# Herramientas para análisis interactivo en Jupyter / Colab / Codespaces
+pandas>=2.0.0
+geopandas>=0.14.0
+folium>=0.16.0
+matplotlib>=3.7.0
+ipywidgets>=8.0.0
